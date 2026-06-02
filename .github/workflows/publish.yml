@@ -1,0 +1,29 @@
+name: Publish
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Run CI checks
+        run: deno task ci
+
+      - name: Verify JSR package
+        run: deno publish --dry-run
+
+      - name: Publish package
+        run: deno publish
