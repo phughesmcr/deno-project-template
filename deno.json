@@ -1,12 +1,12 @@
 {
   "name": "template",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "license": "MIT",
   "exports": {
     ".": "./mod.ts"
   },
-  "unstable": ["kv", "raw-imports"],
+  "unstable": ["kv", "raw-imports", "tsgo", "bundle"],
   "lock": true,
   "minimumDependencyAge": "P2D",
   "nodeModulesDir": "auto",
@@ -18,7 +18,8 @@
     "check:format": "deno fmt --check",
     "check:lint": "deno lint",
     "check:types": "deno check mod.ts src/**/*.ts __test__/**/*.test.ts __bench__/**/*.bench.ts",
-    "ci": "CI=1 deno task check:format && deno task check:lint && deno task check:types && deno task check:docs && deno test"
+    "ci": "CI=1 deno task check:format && deno task check:lint && deno task check:types && deno task check:docs && deno test",
+    "fix": "deno fmt && deno lint --fix"
   },
   "test": {
     "include": ["__test__/**/*.test.ts"]
@@ -40,7 +41,7 @@
     "trailingCommas": "onlyMultiLine",
     "useBraces": "whenNotSingleLine",
     "useTabs": false,
-    "exclude": ["*.md", "**/*.md", "LICENSE"]
+    "exclude": ["*.md", "**/*.md", "LICENSE", "static/"]
   },
   "lint": {
     "include": ["*.ts", "**/*.ts"],
@@ -73,6 +74,7 @@
     "erasableSyntaxOnly": true,
     "lib": ["esnext"],
     "module": "esnext",
+    "moduleResolution": "bundler",
     "noErrorTruncation": true,
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
