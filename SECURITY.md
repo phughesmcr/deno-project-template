@@ -9,4 +9,4 @@
 
 ## Reporting a Vulnerability
 
-To disclose a vulnerability, email ```github@phugh.es```
+To disclose a vulnerability, contact us through Github.
