@@ -16,14 +16,15 @@ The package name is `@phughesmcr/deno-project-template`. Change `name` in `deno.
 
 [`AGENTS.md`](./AGENTS.md) holds the project rules for any coding agent. Claude Code also picks up [`.claude/`](./.claude):
 
-- `settings.json` — Opus 5.5 at `medium` effort, a status line (model, branch, context, cost, 5-hour limit), permissions for `deno`, everyday `git` and read-only `gh` commands, and the hooks below. Personal overrides go in the untracked `settings.local.json`.
+- `settings.json` — Opus 5.5 at `medium` effort, auto-compact at 300k tokens, a status line (model, branch, context, cost, 5-hour limit), permissions for `deno`, everyday `git` and read-only `gh` commands, and the hooks below. Personal overrides go in the untracked `settings.local.json`.
 - `hooks/hook.ts`:
   - At session start, injects a map of the exports in `src/`, plus the previous session's `.claude/handoff.md`, which it then deletes.
   - Formats edited files.
   - Trims the output of `deno test`/`check`/`lint`, `deno task test`/`check`/`ci`, `gh run view --log` and `gh pr checks --watch` to its tail.
   - Past 250k tokens of context (`CONTEXT_BUDGET_WARN`), asks for a handoff and a `/clear`.
-  - Blocks the end of a turn that changed files while `deno task ci` fails, at most 3 times in a row.
+  - Blocks the end of a turn whose own tool calls changed files while `deno task ci` fails, at most 3 times in a row. Edits by another session or the user mid-turn don't count.
 - `agents/reviewer.md` — a read-only reviewer that reports only verified findings.
+- `agents/explore.md` — replaces the built-in Explore agent with a read-only Haiku search at `low` effort.
 - `skills/`:
   - `/new-project` turns a fresh clone into a named project and can set up its GitHub repository: squash merges, plus a ruleset that requires CI on `main`.
   - `/slice <feature | #issue>` builds a feature test-first.

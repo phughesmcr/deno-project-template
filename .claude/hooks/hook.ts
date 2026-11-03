@@ -1,5 +1,5 @@
 // Claude Code hooks, wired in .claude/settings.json:
-// session | statusline | filter | format | budget | prompt | stop
+// session | statusline | filter | format | budget | track | prompt | stop
 
 const MODES = [
   "session",
@@ -7,6 +7,7 @@ const MODES = [
   "filter",
   "format",
   "budget",
+  "track",
   "prompt",
   "stop",
 ] as const;
@@ -17,6 +18,7 @@ type HookInput = {
   event: string;
   transcriptPath: string;
   stopHookActive: boolean;
+  toolUseId: string;
   toolInput: Record<string, unknown>;
 };
 
@@ -233,6 +235,7 @@ function parseInput(raw: Record<string, unknown>): HookInput {
     event: String(raw["hook_event_name"] ?? ""),
     transcriptPath: String(raw["transcript_path"] ?? ""),
     stopHookActive: raw["stop_hook_active"] === true,
+    toolUseId: String(raw["tool_use_id"] ?? ""),
     toolInput: typeof toolInput === "object" && toolInput !== null ?
       toolInput as Record<string, unknown> :
       {},
@@ -241,9 +244,13 @@ function parseInput(raw: Record<string, unknown>): HookInput {
 
 /** One file per value, so hooks running in parallel never share a file. */
 function stateDir(sessionId: string): string | undefined {
-  const id = sessionId.replace(/[^A-Za-z0-9_-]/g, "");
+  const id = safeName(sessionId);
   if (id === "") return undefined;
   return `${Deno.env.get("TMPDIR") || "/tmp"}/claude-hooks/${id}`;
+}
+
+function safeName(id: string): string {
+  return id.replace(/[^A-Za-z0-9_-]/g, "");
 }
 
 async function readState(dir: string, key: string): Promise<string> {
@@ -450,11 +457,27 @@ async function run(mode: Mode, raw: Record<string, unknown>): Promise<void> {
       if (dir !== undefined) await warnBudget(dir, input);
       return;
     }
+    case "track": {
+      // Snapshots the tree around each of this session's own tool calls, so
+      // another writer's edits mid-turn never count as this turn's changes.
+      const dir = stateDir(input.sessionId);
+      const id = safeName(input.toolUseId);
+      if (dir === undefined || id === "") return;
+      const key = `tool-${id}`;
+      const now = await treeSnapshot(projectDir);
+      if (input.event === "PreToolUse") return writeState(dir, key, now);
+      const before = await readState(dir, key);
+      await Deno.remove(`${dir}/${key}`).catch(() => {});
+      if (before !== "" && before !== now) {
+        await writeState(dir, "changed", "1");
+      }
+      return;
+    }
     case "prompt": {
       const dir = stateDir(input.sessionId);
       if (dir === undefined) return;
       await Promise.all([
-        treeSnapshot(projectDir).then((snap) => writeState(dir, "turn", snap)),
+        writeState(dir, "changed", ""),
         warnBudget(dir, input),
       ]);
       return;
@@ -462,10 +485,8 @@ async function run(mode: Mode, raw: Record<string, unknown>): Promise<void> {
     case "stop": {
       const dir = stateDir(input.sessionId);
       if (dir === undefined) return;
-      const before = await readState(dir, "turn");
       const result = await decideStop({
-        // No snapshot (hook added mid-session): fail open.
-        changed: before !== "" && before !== await treeSnapshot(projectDir),
+        changed: await readState(dir, "changed") !== "",
         blocks: Number(await readState(dir, "blocks")) || 0,
         stopHookActive: input.stopHookActive,
       }, () => runCi(projectDir));

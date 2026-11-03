@@ -99,6 +99,15 @@
             "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-run=deno,git --allow-env=CLAUDE_PROJECT_DIR,TMPDIR,CONTEXT_BUDGET_WARN \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" filter"
           }
         ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-run=git --allow-env=CLAUDE_PROJECT_DIR,TMPDIR \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" track"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -118,6 +127,26 @@
             "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-run=deno,git --allow-env=CLAUDE_PROJECT_DIR,TMPDIR,CONTEXT_BUDGET_WARN \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" budget"
           }
         ]
+      },
+      {
+        "matcher": "Bash|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-run=git --allow-env=CLAUDE_PROJECT_DIR,TMPDIR \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" track"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "Bash|Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-run=git --allow-env=CLAUDE_PROJECT_DIR,TMPDIR \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" track"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -125,7 +154,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-run=deno,git --allow-env=CLAUDE_PROJECT_DIR,TMPDIR,CONTEXT_BUDGET_WARN \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" prompt"
+            "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-env=CLAUDE_PROJECT_DIR,TMPDIR,CONTEXT_BUDGET_WARN \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" prompt"
           }
         ]
       }
@@ -135,7 +164,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-run=deno,git --allow-env=CLAUDE_PROJECT_DIR,TMPDIR,CONTEXT_BUDGET_WARN \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" stop",
+            "command": "deno run --quiet --allow-read --allow-write=\"${TMPDIR:-/tmp}/claude-hooks\" --allow-run=deno --allow-env=CLAUDE_PROJECT_DIR,TMPDIR,CONTEXT_BUDGET_WARN \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" stop",
             "timeout": 600
           }
         ]

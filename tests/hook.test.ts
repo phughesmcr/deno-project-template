@@ -355,12 +355,24 @@ Deno.test(async function hookGatesStopOnCiOnlyAfterTurnChanges() {
     hook("UserPromptSubmit", 0, { hook_event_name: "UserPromptSubmit" });
   const stop = (active: boolean) =>
     hook("Stop", 0, { hook_event_name: "Stop", stop_hook_active: active });
+  const call = (event: "PreToolUse" | "PostToolUseFailure") =>
+    hook(event, event === "PreToolUse" ? 1 : 0, {
+      hook_event_name: event,
+      tool_name: "Bash",
+      tool_use_id: "toolu_1",
+    });
 
   await prompt();
   assertEquals(await stop(false), { code: 0, stdout: "" });
 
-  // A Bash-style edit, no Edit/Write hook involved.
+  // Another writer's edit outside this session's tool calls is not this turn's.
+  await Deno.writeTextFile(`${root}/other.ts`, "export const y = 1;\n");
+  assertEquals(await stop(false), { code: 0, stdout: "" });
+
+  // A Bash edit in a call that then fails still counts.
+  await call("PreToolUse");
   await Deno.writeTextFile(`${root}/new.ts`, "export const x = 1;\n");
+  await call("PostToolUseFailure");
   const blocked = JSON.parse((await stop(false)).stdout);
   assertEquals(blocked.decision, "block");
   assertStringIncludes(blocked.reason, "CI-MARKER");
