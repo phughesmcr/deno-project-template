@@ -5,7 +5,8 @@
   "description": "Deno 2.9 library template.",
   "exports": "./src/mod.ts",
   "imports": {
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@1",
+    "@std/yaml": "jsr:@std/yaml@1"
   },
   "minimumDependencyAge": "P2D",
   "compilerOptions": {

@@ -1,7 +1,7 @@
 ---
 name: ship
 description: Ship the current change through a pull request - branch, commit, push, wait for CI, squash-merge, and return to an updated main.
-argument-hint: [#issue] [commit message]
+argument-hint: "[#issue] [commit message]"
 disable-model-invocation: true
 allowed-tools: Bash(git push *) Bash(gh pr create *) Bash(gh pr merge *)
 ---

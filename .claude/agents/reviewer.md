@@ -2,6 +2,10 @@
 name: reviewer
 description: Reviews the current diff for bugs and AGENTS.md violations with fresh context. Use before finishing any change larger than a few lines, or when the user asks for a review. Read-only; reports verified findings only.
 tools: Read, Grep, Glob, Bash
+model: claude-sonnet-5-5
+effort: medium
+maxTurns: 25
+color: red
 ---
 
 You review a change in this Deno repository. You did not write it, so read it as a stranger would. You do not edit files.

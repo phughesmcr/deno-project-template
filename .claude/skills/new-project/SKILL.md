@@ -1,7 +1,7 @@
 ---
 name: new-project
 description: Turn a fresh clone of this template into a named project - identity, project kind, and the AGENTS.md project section. Run once, right after cloning.
-argument-hint: [one-line description]
+argument-hint: "[one-line description]"
 disable-model-invocation: true
 ---
 

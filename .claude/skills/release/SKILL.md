@@ -1,7 +1,7 @@
 ---
 name: release
 description: Cut a JSR release - bump the version, verify, commit and tag, then push only after the user confirms.
-argument-hint: patch | minor | major
+argument-hint: "patch | minor | major"
 disable-model-invocation: true
 ---
 

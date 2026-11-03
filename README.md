@@ -23,11 +23,14 @@ The package name is `@phughesmcr/deno-project-template`. Change `name` in `deno.
   - Trims the output of `deno test`/`check`/`lint`, `deno task test`/`check`/`ci`, `gh run view --log` and `gh pr checks --watch` to its tail.
   - Past 250k tokens of context (`CONTEXT_BUDGET_WARN`), asks for a handoff and a `/clear`.
   - Blocks the end of a turn whose own tool calls changed files while `deno task ci` fails, at most 3 times in a row. Edits by another session or the user mid-turn don't count.
-- `agents/reviewer.md` — a read-only reviewer that reports only verified findings.
-- `agents/explore.md` — replaces the built-in Explore agent with a read-only Haiku search at `low` effort.
+- `agents/`, each with a `maxTurns` cap:
+  - `explorer` — read-only code search on Haiku at `low` effort, without loading `AGENTS.md`. It replaces the built-in Explore agent, which `settings.json` denies.
+  - `simplifier` — Sonnet at `medium` effort. Makes the current diff simpler without changing behavior, adapted from the thermo-nuclear code quality review, then keeps `deno task ci` green.
+  - `reviewer` — read-only reviewer on Sonnet at `medium` effort that reports only verified findings.
+  - `docs-checker` — read-only Haiku check, at `medium` effort, for docs the current change made stale.
 - `skills/`:
   - `/new-project` turns a fresh clone into a named project and can set up its GitHub repository: squash merges, plus a ruleset that requires CI on `main`.
-  - `/slice <feature | #issue>` builds a feature test-first.
+  - `/slice <feature | #issue>` builds a feature test-first, then runs the simplifier, reviewer and docs-checker on the diff.
   - `/ship` takes the change through a pull request: CI, squash-merge, back to `main`.
   - `/release [patch|minor|major]` bumps, verifies and tags, then asks before pushing.
 
