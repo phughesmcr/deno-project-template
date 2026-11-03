@@ -16,9 +16,10 @@ The package name is `@phughesmcr/deno-project-template`. Change `name` in `deno.
 
 [`AGENTS.md`](./AGENTS.md) holds the project rules for any coding agent. Claude Code also picks up [`.claude/`](./.claude):
 
-- `settings.json` — Opus 5.5 at `medium` effort, permissions for `deno` and everyday `git` commands, and the hooks below. Personal overrides go in the untracked `settings.local.json`.
+- `settings.json` — Opus 5.5 at `medium` effort, auto-compact at 300k tokens, permissions for `deno` and everyday `git` commands, and the hooks below. Personal overrides go in the untracked `settings.local.json`.
 - `hooks/hook.ts` — formats edited files, trims `deno task ci`/`check`/`test` output to its tail, warns once when context passes 250k tokens (`CONTEXT_BUDGET_WARN`), and blocks the end of a turn that changed files while `deno task ci` fails (at most 3 times in a row).
 - `agents/reviewer.md` — a read-only reviewer that reports only verified findings.
+- `agents/explore.md` — replaces the built-in Explore agent with a read-only Haiku search at `low` effort.
 - `skills/` — `/new-project` turns a fresh clone into a named project; `/slice <feature>` builds a feature test-first; `/release [patch|minor|major]` bumps, verifies and tags, then asks before pushing.
 
 ## Publish

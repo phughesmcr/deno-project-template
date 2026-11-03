@@ -3,7 +3,8 @@
   "model": "claude-opus-5-5",
   "effortLevel": "medium",
   "env": {
-    "CLAUDE_CODE_DISABLE_ARTIFACT": "1"
+    "CLAUDE_CODE_DISABLE_ARTIFACT": "1",
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "300000"
   },
   "skillOverrides": {
     "anthropic-skills:docx": "off",
