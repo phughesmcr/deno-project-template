@@ -1,6 +1,6 @@
 # deno-project-template
 
-Deno 2.9 library, set up the way [`deno init --lib`](https://docs.deno.com/runtime/getting_started/first_project/) does it: one entrypoint, a colocated test, and a lockfile. The toolchain is pinned to Deno 2.9.8 in [`.tool-versions`](./.tool-versions).
+Deno 2.9 library. Source lives in `src/`, tests in `tests/`. The toolchain is pinned to Deno 2.9.8 in [`.tool-versions`](./.tool-versions).
 
 ```sh
 deno task dev    # tests, rerun on save
