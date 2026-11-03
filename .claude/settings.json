@@ -11,7 +11,8 @@
   },
   "env": {
     "CLAUDE_CODE_DISABLE_ARTIFACT": "1",
-    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "300000"
+    "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "300000",
+    "CONTEXT_BUDGET_HOOK": "project"
   },
   "skillOverrides": {
     "anthropic-skills:docx": "off",
