@@ -1,0 +1,15 @@
+---
+name: slice
+description: Build one feature as the smallest working end-to-end slice, test first, through to a green `deno task ci`.
+argument-hint: <feature>
+disable-model-invocation: true
+---
+
+Build this feature as the smallest slice an end user can exercise: $ARGUMENTS
+
+1. Read the code you will change and its callers. For any Deno, Web or `@std` API you are not certain of on the pinned Deno version, check its signature with `deno doc` (for example `deno doc jsr:@std/path/join`) before using it.
+2. Write the test first in `tests/`, exercising the behavior the way a caller would. Run `deno task test` and confirm it fails for the reason you expect, not an import or type error.
+3. Write the least code in `src/` that passes it. Public API goes through `src/mod.ts` with a JSDoc comment (`deno doc --lint` checks it).
+4. Run `deno task ci` and fix what it reports.
+5. If the diff is more than a few lines, run the `reviewer` subagent on it. Fix confirmed bugs and test gaps; say which findings you rejected and why.
+6. Finish with: what now works and how to run it, how you checked it, and the next slice worth building.

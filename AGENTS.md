@@ -21,7 +21,7 @@ If this project grows into a web or desktop app, prefer [Deno Fresh](https://use
 - Top-level functions must be `function` declarations, not `const` arrows.
 - Use modern APIs where relevant (`Promise.try`, `Disposable` / `AsyncDisposable`, etc.) — only APIs available on the pinned Deno version.
 - Formatting and linting rules live in `deno.json`. Honor them; don't fight them.
-- Source lives in `src/`. Tests live in `tests/`, named `*.test.ts`. Run with `deno test`.
+- Source lives in `src/`. Tests live in `tests/`, named `*.test.ts`. Run with `deno task test`. Claude Code hook scripts live in `.claude/hooks/` and are tested like source.
 - Filenames are lowercase `snake_case` (e.g. `entity_manager.ts`). Barrels are `mod.ts`, never `index.ts`.
 - Imports are explicit and named, with the `.ts` extension — e.g. `import { spawnThing } from "../play/spawn.ts"`. No star-imports (`import * as ...`); they defeat tree-shaking for `deno compile`.
 - Function names describe what they do, not where they live — the directory already says where.
@@ -151,6 +151,7 @@ function makeBuffer(n: number) {
 
 - With the first tool call, one line on what you are doing. That line shares the message with the call.
 - When the work is finished, and only then, recap what changed, how you checked it, and anything still open.
+- Ground what you say in what you read. Cite `path:line` for claims about this code. Before relying on a Deno, Web or `@std` API you are not certain of, check its signature with `deno doc` (e.g. `deno doc jsr:@std/path/join`) or its types. If you could not verify something, say so instead of guessing.
 - Use `deno check` / `deno task check` while iterating. Run `deno task ci` (format, lint, types, docs, tests) before claiming done.
 - Request only the Deno permissions the code needs; don't widen `--allow-*` casually.
 - Add packages to `deno.json` `imports` deliberately; prefer `@std` and existing deps first.
@@ -166,9 +167,3 @@ function makeBuffer(n: number) {
 - [ ] No allocation inside a genuine hot loop — cold paths exempt.
 - [ ] Filenames are `snake_case`. Source is in `src/`; barrels are `mod.ts`. Tests are `*.test.ts` in `tests/`.
 - [ ] `deno task ci` passes.
-
-## Ending a turn
-
-A standing instruction from the user, the person you are working for. It is about how your turns end. A message with no tool call in it ends your turn, and the work stops there until you are asked to continue. The user has seen you end turns in four ways while work they asked for was still owed, and does not want any of them. One: a long summary of what was done that closes by announcing the next step and has no tool call, so the next thing never starts. Two: an offer to carry on with something unless the user would prefer otherwise, which stops to wait for an answer the user was not going to give. Three: a list of decisions for the user when, by your own account, none of them blocks the rest of the work. Four: deciding that this is a good place to report, because the turn has been long or a milestone is done. Status notes are welcome, and so are your recommendations on open decisions, but put them in the same message as your next tool call and carry on with whatever does not depend on the user's answer. If you notice yourself inviting the user to redirect you or offering to wait, delete it and do the next thing. The stops the user does want are the ones where nothing can move without them, or where the thing blocking you is deliberately protected from you. This does not override the need for confirmation on risky or destructive actions.
-
-Format, lint, typecheck, docs, and tests are part of the work still owed. Fix what they report and re-run them before you stop. Do not end the turn to announce that you are about to run them.

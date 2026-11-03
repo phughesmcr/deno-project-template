@@ -17,6 +17,10 @@ Deno.test(function layoutRule() {
   assertEquals(problems(`${Deno.cwd()}/src/play/spawn.ts`, clean), []);
   assertEquals(problems("tests/mod.test.ts", clean), []);
   assertEquals(problems("lint/plugin.ts", clean), []);
+  assertEquals(problems(".claude/hooks/hook.ts", clean), []);
+  assertEquals(problems(".claude/hooks/Hook.ts", clean), [
+    'Filename "Hook.ts" must be snake_case.',
+  ]);
   assertEquals(problems("src/index.ts", clean), [
     "Barrels are mod.ts, never index.ts.",
   ]);
@@ -36,7 +40,10 @@ Deno.test(function layoutRule() {
     "Tests live in tests/ and are named *.test.ts.",
   ]);
   assertEquals(problems("other/file.ts", clean), [
-    "TypeScript files belong in src/ or tests/.",
+    "TypeScript files belong in src/, tests/ or .claude/hooks/.",
+  ]);
+  assertEquals(problems(".claude/other.ts", clean), [
+    "TypeScript files belong in src/, tests/ or .claude/hooks/.",
   ]);
 });
 

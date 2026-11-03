@@ -11,10 +11,10 @@ function layoutProblem(filename: string): string | undefined {
   const rel = relativePath(filename);
   if (!rel.endsWith(".ts") || rel === "lint/plugin.ts") return undefined;
   const parts = rel.split("/");
-  const root = parts[0];
+  const root = rel.startsWith(".claude/hooks/") ? "src" : parts[0];
   const file = parts.at(-1);
   if (root !== "src" && root !== "tests" || file === undefined) {
-    return "TypeScript files belong in src/ or tests/.";
+    return "TypeScript files belong in src/, tests/ or .claude/hooks/.";
   }
   for (const dir of parts.slice(1, -1)) {
     if (!segment.test(dir)) {

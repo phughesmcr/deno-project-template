@@ -65,11 +65,11 @@
     "sortNamedImports": "caseInsensitive",
     "sortNamedExports": "caseInsensitive",
     "newLineKind": "lf",
-    "exclude": ["**/*.md", "LICENSE"]
+    "exclude": ["**/*.md", ".claude/**/*.md", "LICENSE"]
   },
   "tasks": {
-    "dev": "deno test --watch",
-    "test": "deno test",
+    "dev": "deno test --allow-read --allow-write --allow-run=bash,deno,git --watch",
+    "test": "deno test --allow-read --allow-write --allow-run=bash,deno,git",
     "check": "deno fmt --check && deno lint && deno check src/mod.ts tests/ && deno doc --lint src/mod.ts",
     "ci": "deno task check && deno task test",
     "fix": "deno fmt && deno lint --fix"
