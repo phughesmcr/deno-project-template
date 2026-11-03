@@ -64,6 +64,16 @@
     ]
   },
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "deno run --quiet --allow-read --allow-env=CLAUDE_PROJECT_DIR \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" session"
+          }
+        ]
+      }
+    ],
     "PreToolUse": [
       {
         "matcher": "Bash",

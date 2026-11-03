@@ -6,6 +6,7 @@ import {
   decideStop,
   filterCommand,
   MAX_BLOCKS,
+  toolchainWarning,
 } from "../.claude/hooks/hook.ts";
 
 const HOOK_SOURCE = new URL("../.claude/hooks/hook.ts", import.meta.url);
@@ -74,6 +75,16 @@ async function makeProject(): Promise<{
     },
   };
 }
+
+Deno.test(function toolchainWarningOnlyOnMismatch() {
+  assertEquals(toolchainWarning("deno 2.9.8\n", "2.9.8"), undefined);
+  assertEquals(toolchainWarning("nodejs 22\n", "2.9.8"), undefined);
+  assertEquals(toolchainWarning("", "2.9.8"), undefined);
+  assertStringIncludes(
+    toolchainWarning("nodejs 22\ndeno 2.9.8\n", "2.8.0") ?? "",
+    "Deno on PATH is 2.8.0, but .tool-versions pins 2.9.8.",
+  );
+});
 
 Deno.test(function filterCommandWrapsKnownCommands() {
   const wrapped = filterCommand("deno task ci");
@@ -150,6 +161,21 @@ Deno.test(async function stopResetsBlocksOnFreshTurn() {
   const turn = { changed: true, blocks: MAX_BLOCKS, stopHookActive: false };
   const result = await decideStop(turn, ci({ ok: false, output: "" }).run);
   assertEquals(result.blocks, 1);
+});
+
+Deno.test(async function hookWarnsAtSessionStartOnToolchainMismatch() {
+  const { root, hook } = await makeProject();
+  const start = () =>
+    hook("SessionStart", 0, { hook_event_name: "SessionStart" });
+  await Deno.writeTextFile(`${root}/.tool-versions`, "deno 0.0.1\n");
+  const output = JSON.parse((await start()).stdout).hookSpecificOutput;
+  assertEquals(output.hookEventName, "SessionStart");
+  assertStringIncludes(output.additionalContext, "pins 0.0.1");
+  await Deno.writeTextFile(
+    `${root}/.tool-versions`,
+    `deno ${Deno.version.deno}\n`,
+  );
+  assertEquals(await start(), { code: 0, stdout: "" });
 });
 
 Deno.test(async function hookRewritesFilteredBashCommands() {

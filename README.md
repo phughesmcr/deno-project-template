@@ -1,6 +1,6 @@
 # deno-project-template
 
-Deno 2.9 library. Source lives in `src/`, tests in `tests/`. The toolchain is pinned to Deno 2.9.8 in [`.tool-versions`](./.tool-versions).
+Deno 2.9 library. Source lives in `src/`, tests in `tests/`. To start a project from it, clone it and run `/new-project` in Claude Code. The toolchain is pinned to Deno 2.9.8 in [`.tool-versions`](./.tool-versions).
 
 ```sh
 deno task dev    # tests, rerun on save
@@ -19,7 +19,7 @@ The package name is `@phughesmcr/deno-project-template`. Change `name` in `deno.
 - `settings.json` — Opus 5.5 at `medium` effort, permissions for `deno` and everyday `git` commands, and the hooks below. Personal overrides go in the untracked `settings.local.json`.
 - `hooks/hook.ts` — formats edited files, trims `deno task ci`/`check`/`test` output to its tail, warns once when context passes 250k tokens (`CONTEXT_BUDGET_WARN`), and blocks the end of a turn that changed files while `deno task ci` fails (at most 3 times in a row).
 - `agents/reviewer.md` — a read-only reviewer that reports only verified findings.
-- `skills/` — `/slice <feature>` builds a feature test-first; `/release [patch|minor|major]` bumps, verifies and tags, then asks before pushing.
+- `skills/` — `/new-project` turns a fresh clone into a named project; `/slice <feature>` builds a feature test-first; `/release [patch|minor|major]` bumps, verifies and tags, then asks before pushing.
 
 ## Publish
 

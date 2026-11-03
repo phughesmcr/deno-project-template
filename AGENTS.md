@@ -4,6 +4,10 @@ This is a personal experimental project. Ship the smallest working slice that me
 
 Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better. Reading the code you will change, a test that locks the behavior, and `deno task ci` are not skippable.
 
+## This project
+
+This is the template itself: a Deno library starter with agent tooling. In a project made from it, `/new-project` replaces this section with what the project is and who uses it, its kind (library, CLI or app), domain terms, layout beyond `src/` and `tests/`, and commands beyond `deno task ci`. Keep it current as those change.
+
 ## Tech stack
 
 - [Deno](https://docs.deno.com/) 2.9.8 — pinned in `.tool-versions`. Runtime, test runner, formatter, linter, type checker

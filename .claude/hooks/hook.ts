@@ -1,7 +1,7 @@
 // Claude Code hooks, wired in .claude/settings.json:
-// filter | format | budget | prompt | stop
+// session | filter | format | budget | prompt | stop
 
-type Mode = "filter" | "format" | "budget" | "prompt" | "stop";
+type Mode = "session" | "filter" | "format" | "budget" | "prompt" | "stop";
 
 type HookInput = {
   sessionId: string;
@@ -30,6 +30,19 @@ const FILTERED_COMMANDS = new Set([
   "deno task check",
   "deno task ci",
 ]);
+
+/** A warning when the running Deno is not the version `.tool-versions` pins. */
+export function toolchainWarning(
+  toolVersions: string,
+  running: string,
+): string | undefined {
+  const pinned = toolVersions.match(/^deno\s+(\S+)/m)?.[1];
+  if (pinned === undefined || pinned === running) return undefined;
+  return `Deno on PATH is ${running}, but .tool-versions pins ${pinned}. ` +
+    `Write code for ${pinned}: \`deno doc\` and \`deno check\` here reflect ` +
+    `${running}, so confirm APIs against ${pinned}'s docs. Tell the user ` +
+    "once, so they can switch toolchains.";
+}
 
 /** Wraps known test/check commands so only the output tail reaches context. */
 export function filterCommand(command: string): string | undefined {
@@ -209,8 +222,20 @@ async function warnBudget(dir: string, input: HookInput): Promise<void> {
 
 async function run(mode: Mode, input: HookInput): Promise<void> {
   const projectDir = Deno.env.get("CLAUDE_PROJECT_DIR") ?? Deno.cwd();
-  const dir = stateDir(input.sessionId);
   switch (mode) {
+    case "session": {
+      const toolVersions = await Deno.readTextFile(
+        `${projectDir}/.tool-versions`,
+      ).catch(() => "");
+      const warning = toolchainWarning(toolVersions, Deno.version.deno);
+      if (warning === undefined) return;
+      return print({
+        hookSpecificOutput: {
+          hookEventName: "SessionStart",
+          additionalContext: warning,
+        },
+      });
+    }
     case "filter": {
       const command = input.toolInput["command"];
       const filtered = typeof command === "string" ?
@@ -239,10 +264,12 @@ async function run(mode: Mode, input: HookInput): Promise<void> {
       return;
     }
     case "budget": {
+      const dir = stateDir(input.sessionId);
       if (dir !== undefined) await warnBudget(dir, input);
       return;
     }
     case "prompt": {
+      const dir = stateDir(input.sessionId);
       if (dir === undefined) return;
       await Promise.all([
         treeSnapshot(projectDir).then((snap) => writeState(dir, "turn", snap)),
@@ -251,6 +278,7 @@ async function run(mode: Mode, input: HookInput): Promise<void> {
       return;
     }
     case "stop": {
+      const dir = stateDir(input.sessionId);
       if (dir === undefined) return;
       const before = await readState(dir, "turn");
       const result = await decideStop({
@@ -273,8 +301,8 @@ async function run(mode: Mode, input: HookInput): Promise<void> {
 }
 
 function isMode(value: string | undefined): value is Mode {
-  return value === "filter" || value === "format" || value === "budget" ||
-    value === "prompt" || value === "stop";
+  return value === "session" || value === "filter" || value === "format" ||
+    value === "budget" || value === "prompt" || value === "stop";
 }
 
 if (import.meta.main) {
