@@ -1,99 +1,56 @@
 {
-  "name": "template",
-  "version": "0.0.2",
-  "description": "",
+  "name": "@phughesmcr/deno-project-template",
+  "version": "0.1.0",
   "license": "MIT",
-  "exports": {
-    ".": "./mod.ts"
-  },
-  "unstable": ["kv", "raw-imports", "tsgo", "bundle"],
-  "lock": true,
-  "minimumDependencyAge": "P2D",
-  "nodeModulesDir": "auto",
+  "description": "Deno 2.9 library template.",
+  "exports": "./mod.ts",
   "imports": {
-    "@std/assert": "jsr:@std/assert@1"
+    "@std/assert": "jsr:@std/assert@1" // dev
   },
-  "tasks": {
-    "check:docs": "deno doc --lint mod.ts src/**/*.ts",
-    "check:format": "deno fmt --check",
-    "check:lint": "deno lint",
-    "check:types": "deno check mod.ts src/**/*.ts __test__/**/*.test.ts __bench__/**/*.bench.ts",
-    "ci": "CI=1 deno task check:format && deno task check:lint && deno task check:types && deno task check:docs && deno test",
-    "fix": "deno fmt && deno lint --fix"
-  },
-  "test": {
-    "include": ["__test__/**/*.test.ts"]
-  },
-  "bench": {
-    "include": ["__bench__/**/*.bench.ts"]
-  },
-  "fmt": {
-    "bracePosition": "sameLine",
-    "indentWidth": 2,
-    "lineWidth": 120,
-    "newLineKind": "lf",
-    "nextControlFlowPosition": "sameLine",
-    "operatorPosition": "sameLine",
-    "proseWrap": "always",
-    "quoteProps": "consistent",
-    "semiColons": true,
-    "singleQuote": false,
-    "trailingCommas": "onlyMultiLine",
-    "useBraces": "whenNotSingleLine",
-    "useTabs": false,
-    "exclude": ["*.md", "**/*.md", "LICENSE", "static/"]
-  },
-  "lint": {
-    "include": ["*.ts", "**/*.ts"],
-    "rules": {
-      "tags": ["recommended", "jsr"],
-      "include": [
-        "camelcase",
-        "default-param-last",
-        "explicit-function-return-type",
-        "explicit-module-boundary-types",
-        "no-await-in-loop",
-        "no-await-in-sync-fn",
-        "no-console",
-        "no-const-assign",
-        "no-eval",
-        "no-non-null-asserted-optional-chain",
-        "no-sync-fn-in-async-fn",
-        "no-throw-literal",
-        "no-top-level-await",
-        "no-undef",
-        "no-useless-rename",
-        "prefer-ascii",
-        "single-var-declarator"
-      ]
-    }
-  },
+  "minimumDependencyAge": "P2D",
   "compilerOptions": {
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
     "erasableSyntaxOnly": true,
-    "lib": ["esnext"],
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "noErrorTruncation": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
     "noImplicitReturns": true,
-    "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "strict": true,
     "verbatimModuleSyntax": true
+  },
+  "lint": {
+    "rules": {
+      "tags": ["recommended", "jsr"],
+      "include": [
+        "explicit-module-boundary-types",
+        "no-node-globals",
+        "no-process-global"
+      ]
+    }
+  },
+  "fmt": {
+    "exclude": ["**/*.md", "LICENSE"]
+  },
+  "tasks": {
+    "dev": "deno test --watch",
+    "test": "deno test",
+    "check": "deno fmt --check && deno lint && deno check mod.ts mod_test.ts && deno doc --lint mod.ts",
+    "ci": "deno task check && deno task test",
+    "fix": "deno fmt && deno lint --fix"
   },
   "publish": {
     "exclude": [
-      "__bench__/**",
-      "__test__/**",
-      ".github/**",
-      ".vscode/**",
-      ".cursor/**",
-      ".claude/**"
+      "**/*_test.ts",
+      "**/*.test.ts",
+      "**/*_bench.ts",
+      "**/*.bench.ts",
+      "deno.lock",
+      ".editorconfig",
+      ".gitattributes",
+      ".github",
+      ".vscode",
+      ".cursor",
+      ".tool-versions",
+      "AGENTS.md"
     ]
   }
 }

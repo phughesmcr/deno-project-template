@@ -1,9 +1,5 @@
 # Support
 
-## How to file issues and get help
+Bugs and feature requests go in [GitHub issues](https://github.com/phughesmcr/deno-project-template/issues). Search the open issues before filing a new one.
 
-This project uses [GitHub issues][gh-issue] to [track bugs][gh-bug] and [feature requests][gh-feature]. Please search the existing issues before filing new issues to avoid duplicates. For new topics, file your bug or feature request as a new issue.
-
-## Support Policy
-
-Support is limited to the resources listed above.
+Security reports use the process in [SECURITY.md](./SECURITY.md).

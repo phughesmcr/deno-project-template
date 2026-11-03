@@ -1,26 +1,15 @@
+# Output
 build/
+dist/
+coverage/
+
+# Dependencies
 node_modules/
 
+# Secrets
 .env
 .env.*
-.npm
-deno.lock
-package-lock.json
-package.json
+!.env.example
 
-._*
-.com.apple.timemachine.donotpresent
-.DocumentRevisions-V100
+# OS
 .DS_Store
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-$RECYCLE.BIN/
-Desktop.ini
-ehthumbs_vista.db
-ehthumbs.db
-Thumbs.db
-
-coverage/

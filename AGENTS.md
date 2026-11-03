@@ -4,7 +4,7 @@ This is a personal experimental project and is greenfield — be ambitious. The 
 
 ## Tech stack
 
-- [Deno](https://docs.deno.com/) 2.9.0+ — runtime, test runner, formatter, linter, type checker
+- [Deno](https://docs.deno.com/) 2.9.8 — pinned in `.tool-versions`. Runtime, test runner, formatter, linter, type checker
 - [@std (JSR)](https://jsr.io/@std) — assert, path, fs, encoding, front-matter, media-types, etc.
 - [Deno compile](https://docs.deno.com/reference/cli/compile/) — binary compilation when shipping a CLI or app
 - Prefer Web Platform APIs and Deno APIs available on the stated Deno baseline
@@ -17,9 +17,9 @@ If this project grows into a web or desktop app, prefer [Deno Fresh](https://use
 
 - Strict, functional TypeScript. Prefer data-driven design: plain data + functions over class hierarchies.
 - Top-level functions must be `function` declarations, not `const` arrows.
-- Use modern APIs where relevant (`Promise.try`, `Disposable` / `AsyncDisposable`, etc.) — only APIs available on Deno 2.9.0+.
+- Use modern APIs where relevant (`Promise.try`, `Disposable` / `AsyncDisposable`, etc.) — only APIs available on the pinned Deno version.
 - Formatting and linting rules live in `deno.json`. Honor them; don't fight them.
-- Tests live in `__test__/`, suffixed `.test.ts`. Run with `deno test`.
+- Tests sit next to the code they cover, named `*_test.ts`. Run with `deno test`.
 - Filenames are lowercase `snake_case` (e.g. `entity_manager.ts`). Barrels are `mod.ts`, never `index.ts`.
 - Imports are explicit and named, with the `.ts` extension — e.g. `import { spawnThing } from "../play/spawn.ts"`. No star-imports (`import * as ...`); they defeat tree-shaking for `deno compile`.
 - Function names describe what they do, not where they live — the directory already says where.
@@ -159,7 +159,7 @@ function makeBuffer(n: number) {
 ## Agent operations
 
 - Prefer `deno task ci` before finishing a change (format, lint, types, docs, tests).
-- Use `deno check` / `deno task check:types` while iterating; use full CI before claiming done.
+- Use `deno check` / `deno task check` while iterating; use `deno task ci` before claiming done.
 - Request only the Deno permissions the code needs; don't widen `--allow-*` casually.
 - Add packages to `deno.json` `imports` deliberately; prefer `@std` and existing deps first.
 
@@ -172,5 +172,5 @@ function makeBuffer(n: number) {
 - [ ] No new abstraction layer without ≥2 real callers.
 - [ ] No magic numbers/string codes where a union or named constant fits.
 - [ ] No allocation inside a genuine hot loop — cold paths exempt.
-- [ ] Filenames are `snake_case`; barrels are `mod.ts`.
+- [ ] Filenames are `snake_case`; barrels are `mod.ts`. Tests are `*_test.ts` beside the code.
 - [ ] `deno task ci` passes.

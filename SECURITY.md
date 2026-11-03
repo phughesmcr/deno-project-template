@@ -1,12 +1,9 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-| Version  | Supported          |
-| -------- | ------------------ |
-| 1.0.0    | :white_check_mark: |
-| < 1.0.0  | :x:                |
+Security fixes ship on the latest release.
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-To disclose a vulnerability, contact us through Github.
+Report privately through [GitHub Security Advisories](https://github.com/phughesmcr/deno-project-template/security/advisories/new).
