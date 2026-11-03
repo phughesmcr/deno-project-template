@@ -2,10 +2,12 @@ import { assertEquals, assertStringIncludes } from "@std/assert";
 import settings from "../.claude/settings.json" with { type: "json" };
 import {
   type CiResult,
+  codebaseMap,
   contextTokens,
   decideStop,
   filterCommand,
   MAX_BLOCKS,
+  statusLine,
   toolchainWarning,
 } from "../.claude/hooks/hook.ts";
 
@@ -89,8 +91,39 @@ Deno.test(function toolchainWarningOnlyOnMismatch() {
 Deno.test(function filterCommandWrapsKnownCommands() {
   const wrapped = filterCommand("deno task ci");
   assertStringIncludes(wrapped ?? "", '{ deno task ci; } > "$log" 2>&1');
-  assertEquals(filterCommand("deno task ci --watch"), undefined);
-  assertEquals(filterCommand("git status"), undefined);
+  for (
+    const command of [
+      "deno test",
+      "deno test tests/mod.test.ts",
+      'deno task test --filter "adds two"',
+      "deno lint src/",
+      "deno check src/mod.ts",
+      "gh pr checks --watch",
+    ]
+  ) {
+    assertStringIncludes(filterCommand(command) ?? "", `{ ${command}; }`);
+  }
+  assertStringIncludes(
+    filterCommand("gh run view 123 --log-failed") ?? "",
+    "then tail -n 150",
+  );
+  for (
+    const command of [
+      "deno task ci --watch",
+      "deno task dev",
+      "deno test && git push",
+      "deno test | head",
+      "deno test $(ls)",
+      "deno test # all",
+      "deno test foo\\",
+      "deno testing",
+      "gh pr checks 3",
+      "gh run view 123",
+      "git status",
+    ]
+  ) {
+    assertEquals(filterCommand(command), undefined, command);
+  }
 });
 
 Deno.test(async function filterCommandKeepsExitCodeAndTail() {
@@ -123,6 +156,60 @@ Deno.test(function contextTokensReadsLastUsage() {
   ];
   assertEquals(contextTokens(lines), 3210);
   assertEquals(contextTokens([]), 0);
+});
+
+Deno.test(function codebaseMapListsExportsWithinBudget() {
+  const doc = JSON.stringify({
+    nodes: {
+      "file:///p/src/mod.ts": {
+        symbols: [
+          {
+            name: "add",
+            declarations: [{
+              kind: "function",
+              def: { params: [{ name: "a" }, { name: "b" }, {}] },
+            }],
+          },
+          { name: "Point", declarations: [{ kind: "typeAlias" }] },
+        ],
+      },
+      "file:///p/src/a%20b.ts": { symbols: [{ name: "x" }] },
+    },
+  });
+  const map = codebaseMap(doc, "/p", 2000).split("\n");
+  assertEquals(map.slice(1), [
+    "src/a b.ts: x",
+    "src/mod.ts: add(a, b, …), Point",
+  ]);
+  const tight = codebaseMap(doc, "/p", (map[0] ?? "").length + 20).split("\n");
+  assertEquals(tight.slice(1), ["src/a b.ts: x", "… and 1 more files"]);
+  assertEquals(codebaseMap(JSON.stringify({ nodes: {} }), "/p", 2000), "");
+});
+
+Deno.test(function statusLineShowsContextCostAndHandoff() {
+  const status = {
+    model: "Opus 5.5",
+    branch: "main",
+    tokens: 82_400,
+    percent: 8.2,
+    cost: 0.4249,
+    fiveHour: 23.5,
+    budget: 250_000,
+  };
+  assertEquals(
+    statusLine(status),
+    "Opus 5.5 · main · 82k ctx (8%) · $0.42 · 5h 24%",
+  );
+  assertEquals(
+    statusLine({
+      ...status,
+      branch: "",
+      tokens: 260_000,
+      percent: undefined,
+      fiveHour: undefined,
+    }),
+    "Opus 5.5 · 260k ctx · $0.42 · over 250k: hand off",
+  );
 });
 
 Deno.test(async function stopSkipsCiWhenTurnChangedNothing() {
@@ -176,6 +263,51 @@ Deno.test(async function hookWarnsAtSessionStartOnToolchainMismatch() {
     `deno ${Deno.version.deno}\n`,
   );
   assertEquals(await start(), { code: 0, stdout: "" });
+});
+
+Deno.test(async function hookLoadsHandoffOnceAndMapsSource() {
+  const { root, hook } = await makeProject();
+  const start = async () =>
+    JSON.parse(
+      (await hook("SessionStart", 0, { hook_event_name: "SessionStart" }))
+        .stdout,
+    ).hookSpecificOutput.additionalContext;
+  await Deno.writeTextFile(
+    `${root}/.tool-versions`,
+    `deno ${Deno.version.deno}\n`,
+  );
+  await Deno.mkdir(`${root}/src`);
+  await Deno.writeTextFile(
+    `${root}/src/mod.ts`,
+    "/** Doubles. */\nexport function double(n: number): number {\n" +
+      "  return n * 2;\n}\n",
+  );
+  await Deno.writeTextFile(`${root}/.claude/handoff.md`, "NEXT: add halve\n");
+  const first: string = await start();
+  assertStringIncludes(first, "NEXT: add halve");
+  assertStringIncludes(first, "\nsrc/mod.ts: double(n)");
+  const second: string = await start();
+  assertEquals(second.includes("NEXT"), false);
+  assertStringIncludes(second, "\nsrc/mod.ts: double(n)");
+});
+
+Deno.test(async function statusLineCommandPrintsOneLine() {
+  const { root } = await makeProject();
+  const out = await sh(settings.statusLine.command, {
+    cwd: root,
+    env: { CLAUDE_PROJECT_DIR: root },
+    stdin: JSON.stringify({
+      model: { display_name: "Opus 5.5" },
+      workspace: { project_dir: root },
+      context_window: { total_input_tokens: 1500, used_percentage: 1 },
+      cost: { total_cost_usd: 0.1 },
+    }),
+  });
+  assertEquals(out.code, 0);
+  assertEquals(out.stdout.trim().split(" · ").slice(-2), [
+    "2k ctx (1%)",
+    "$0.10",
+  ]);
 });
 
 Deno.test(async function hookRewritesFilteredBashCommands() {

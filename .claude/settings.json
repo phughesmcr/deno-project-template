@@ -2,6 +2,10 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "model": "claude-opus-5-5",
   "effortLevel": "medium",
+  "statusLine": {
+    "type": "command",
+    "command": "deno run --quiet --allow-read --allow-run=git --allow-env=CLAUDE_PROJECT_DIR,CONTEXT_BUDGET_WARN \"${CLAUDE_PROJECT_DIR:-.}/.claude/hooks/hook.ts\" statusline"
+  },
   "env": {
     "CLAUDE_CODE_DISABLE_ARTIFACT": "1",
     "CLAUDE_CODE_AUTO_COMPACT_WINDOW": "300000"
@@ -49,6 +53,16 @@
       "Bash(git commit *)",
       "Bash(git switch *)",
       "Bash(git merge *)",
+      "Bash(git branch *)",
+      "Bash(git fetch *)",
+      "Bash(git pull --ff-only *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh pr list *)",
+      "Bash(gh run view *)",
+      "Bash(gh run list *)",
+      "Bash(gh issue view *)",
+      "Bash(gh issue list *)",
       "Bash(rg *)",
       "Bash(shasum *)",
       "Bash(lsof *)",
@@ -67,10 +81,11 @@
   "hooks": {
     "SessionStart": [
       {
+        "matcher": "startup|clear|compact",
         "hooks": [
           {
             "type": "command",
-            "command": "deno run --quiet --allow-read --allow-env=CLAUDE_PROJECT_DIR \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" session"
+            "command": "deno run --quiet --allow-read --allow-write=\"$CLAUDE_PROJECT_DIR/.claude/handoff.md\" --allow-run=deno --allow-env=CLAUDE_PROJECT_DIR \"$CLAUDE_PROJECT_DIR/.claude/hooks/hook.ts\" session"
           }
         ]
       }

@@ -16,15 +16,23 @@ The package name is `@phughesmcr/deno-project-template`. Change `name` in `deno.
 
 [`AGENTS.md`](./AGENTS.md) holds the project rules for any coding agent. Claude Code also picks up [`.claude/`](./.claude):
 
-- `settings.json` — Opus 5.5 at `medium` effort, auto-compact at 300k tokens, permissions for `deno` and everyday `git` commands, and the hooks below. Personal overrides go in the untracked `settings.local.json`.
-- `hooks/hook.ts` — formats edited files, trims `deno task ci`/`check`/`test` output to its tail, warns once when context passes 250k tokens (`CONTEXT_BUDGET_WARN`), and blocks the end of a turn that changed files while `deno task ci` fails (at most 3 times in a row).
+- `settings.json` — Opus 5.5 at `medium` effort, a status line (model, branch, context, cost, 5-hour limit), permissions for `deno`, everyday `git` and read-only `gh` commands, and the hooks below. Personal overrides go in the untracked `settings.local.json`.
+- `hooks/hook.ts`:
+  - At session start, injects a map of the exports in `src/`, plus the previous session's `.claude/handoff.md`, which it then deletes.
+  - Formats edited files.
+  - Trims the output of `deno test`/`check`/`lint`, `deno task test`/`check`/`ci`, `gh run view --log` and `gh pr checks --watch` to its tail.
+  - Past 250k tokens of context (`CONTEXT_BUDGET_WARN`), asks for a handoff and a `/clear`.
+  - Blocks the end of a turn that changed files while `deno task ci` fails, at most 3 times in a row.
 - `agents/reviewer.md` — a read-only reviewer that reports only verified findings.
-- `agents/explore.md` — replaces the built-in Explore agent with a read-only Haiku search at `low` effort.
-- `skills/` — `/new-project` turns a fresh clone into a named project; `/slice <feature>` builds a feature test-first; `/release [patch|minor|major]` bumps, verifies and tags, then asks before pushing.
+- `skills/`:
+  - `/new-project` turns a fresh clone into a named project and can set up its GitHub repository: squash merges, plus a ruleset that requires CI on `main`.
+  - `/slice <feature | #issue>` builds a feature test-first.
+  - `/ship` takes the change through a pull request: CI, squash-merge, back to `main`.
+  - `/release [patch|minor|major]` bumps, verifies and tags, then asks before pushing.
 
 ## Publish
 
-Create the package at [jsr.io](https://jsr.io), then push a `v*` tag. [`.github/workflows/publish.yml`](./.github/workflows/publish.yml) runs the checks and `deno publish`, using GitHub OIDC for provenance.
+Create the package at [jsr.io](https://jsr.io), then push a `v*` tag. [`.github/workflows/publish.yml`](./.github/workflows/publish.yml) runs the checks, `deno publish` (using GitHub OIDC for provenance) and creates a GitHub release with generated notes.
 
 ```sh
 deno publish --dry-run

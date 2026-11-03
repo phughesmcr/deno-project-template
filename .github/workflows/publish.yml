@@ -32,3 +32,14 @@ jobs:
       - run: deno task ci
       - run: deno publish --dry-run
       - run: deno publish
+
+  # Its own job, so only this step can write to the repository.
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - run: gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --verify-tag --generate-notes
+        env:
+          GH_TOKEN: ${{ github.token }}

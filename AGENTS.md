@@ -62,61 +62,10 @@ Every changed line traces to the request, or is dead code being removed. In work
 
 ### Encode intent in types, not comments
 
-Use the type system as documentation. Name constants. Model states as discriminated unions so illegal states are unrepresentable. Use a schema library (e.g. Zod) where data crosses a trust boundary — config, user input, persisted files, external payloads.
+Use the type system as documentation. Name constants. Model states as discriminated unions so illegal states are unrepresentable: `{ kind: "ok"; value: string } | { kind: "err"; error: string }`, not `{ kind: number; value?: string; error?: string }`. Use a schema library (e.g. Zod) where data crosses a trust boundary — config, user input, persisted files, external payloads.
 
-**Don't**
-
-```typescript
-// 1 = success, 2 = failure
-function handle(result: { kind: number; value?: string; error?: string }) {
-  if (result.kind === 1) { /* value is set... probably */ }
-}
-```
-
-**Do**
-
-```typescript
-type Result =
-  | { kind: "ok"; value: string }
-  | { kind: "err"; error: string };
-
-function handle(result: Result) {
-  switch (result.kind) {
-    case "ok":
-      return useValue(result.value);
-    case "err":
-      return report(result.error);
-    default: {
-      const _exhaustive: never = result;
-      return _exhaustive;
-    }
-  }
-}
-```
-
-Rule: no bare numeric/string codes where a union or named constant fits. No optional field that's "only set when kind is X" — split the type. Switches over unions must be exhaustive (`never` in `default`).
+Rule: no bare numeric/string codes where a union or named constant fits. No optional field that's "only set when kind is X" — split the type. Switches over unions must be exhaustive: `default: { const _exhaustive: never = value; return _exhaustive; }`.
 
 ### Keep hot paths allocation-light
 
-When a loop is genuinely hot (tight parse/transform, streaming, per-frame work in an app), allocate buffers once and mutate in place. Cold paths — startup, per-request setup, tests — may allocate freely.
-
-**Don't** (inside a hot loop)
-
-```typescript
-function step(items: Item[]) {
-  return items.map((p) => ({ ...p, x: p.x + p.vx })); // allocates every iteration
-}
-```
-
-**Do**
-
-```typescript
-function makeBuffer(n: number) {
-  const x = new Float32Array(n);
-  const vx = new Float32Array(n);
-  function step() {
-    for (let i = 0; i < n; i++) x[i] += vx[i];
-  }
-  return { x, vx, step };
-}
-```
+When a loop is genuinely hot (tight parse/transform, streaming, per-frame work in an app), allocate buffers once (e.g. one `Float32Array` per field) and mutate in place instead of `map`ping to fresh objects each iteration. Cold paths — startup, per-request setup, tests — may allocate freely.
