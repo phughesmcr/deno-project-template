@@ -2,6 +2,32 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "model": "claude-opus-5-5",
   "effortLevel": "medium",
+  "env": {
+    "CLAUDE_CODE_DISABLE_ARTIFACT": "1"
+  },
+  "skillOverrides": {
+    "anthropic-skills:docx": "off",
+    "anthropic-skills:pptx": "off",
+    "anthropic-skills:xlsx": "off",
+    "anthropic-skills:pdf": "off",
+    "anthropic-skills:docs": "off",
+    "anthropic-skills:computer-use": "off",
+    "anthropic-skills:chrome-browser": "off",
+    "anthropic-skills:built-in-browser": "off",
+    "anthropic-skills:artifact-emulator": "off",
+    "anthropic-skills:setup-claude": "off",
+    "cowork-plugin-management:cowork-plugin-customizer": "off",
+    "cowork-plugin-management:create-cowork-plugin": "off",
+    "plugin-authoring": "off",
+    "dataviz": "off",
+    "artifact-design": "off",
+    "artifact-diagramming": "off",
+    "artifact-capabilities": "off"
+  },
+  "disableClaudeAiConnectors": true,
+  "disableWorkflows": true,
+  "disableRemoteControl": true,
+  "disableBundledSkills": true,
   "permissions": {
     "allow": [
       "Bash(deno task *)",
@@ -27,6 +53,14 @@
       "Bash(lsof *)",
       "Bash(ps *)",
       "WebSearch"
+    ],
+    "deny": [
+      "mcp__visualize",
+      "mcp__scheduled-tasks",
+      "SearchPlugins",
+      "SuggestPluginInstall",
+      "SuggestSkills",
+      "ScheduleWakeup"
     ]
   },
   "hooks": {
