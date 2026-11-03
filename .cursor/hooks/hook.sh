@@ -76,6 +76,6 @@ case "$mode" in
     fi
     tail=$(printf '%s\n' "$output" | tail -n 40)
     jq -n --arg tail "$tail" \
-      '{followup_message: ("deno task ci failed. Fix the failures.\n\n" + $tail)}'
+      '{followup_message: ("deno task ci is still failing, so this change is not done. Fix the failures and re-run it. If something is blocked, say what is blocking it.\n\n" + $tail)}'
     ;;
 esac

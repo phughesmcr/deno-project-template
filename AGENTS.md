@@ -1,6 +1,8 @@
 # Project Guidance
 
-This is a personal experimental project and is greenfield — be ambitious. The purpose is working, deployable software delivered accretively in the shortest time compatible with correctness, performance, reliability, and innovation. Process exists to serve that outcome; it must never become the product.
+This is a personal experimental project. Ship the smallest working slice that meets the request, then add the next capability on a product that already works. Correctness, performance, and reliability gate done. Process exists to serve that outcome; it must never become the product.
+
+Time matters here: do not spend time that can be avoided, and the earlier a correct result is obtained, the better. Reading the code you will change, a test that locks the behavior, and `deno task ci` are not skippable.
 
 ## Tech stack
 
@@ -26,7 +28,6 @@ If this project grows into a web or desktop app, prefer [Deno Fresh](https://use
 - Do not preserve backward compatibility for unreleased or pre-1.0 surfaces. Remove obsolete paths instead of adding compatibility layers, fallbacks, or migrations. Treat published `exports` in `deno.json` as a contract once released.
 - Choose the simplest implementation that fully meets current requirements. No speculative abstractions, configuration, or indirection.
 - Grow in layers: smallest end-to-end slice first, then add capability on a product that already works. Long-term architecture means durable choices *after* a working slice — never trade a working product for unfinished complexity.
-- Keep components modular and concerns separated.
 - Remove dead code immediately (yours or pre-existing). Always delete imports, variables, and functions your changes orphan.
 
 ### Delivery integrity
@@ -38,14 +39,12 @@ If this project grows into a web or desktop app, prefer [Deno Fresh](https://use
 
 # Coding Guidance
 
-## 1. Think Before Coding
+## 1. When to ask
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
-
-- State assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them — don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+- Carry out the simplest reading of the request that fully meets it. Name a non-obvious assumption in the same message as the next action.
+- When a simpler approach meets the request, implement it and say so.
+- Ask when nothing further can move without the user, and before a risky or destructive action. Name the blocker.
+- A choice that does not block the rest of the work is not a stop. Take the simplest option and continue.
 
 ## 2. Simplicity First
 
@@ -53,11 +52,9 @@ If this project grows into a web or desktop app, prefer [Deno Fresh](https://use
 
 - No features beyond what was asked.
 - No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
+- No flexibility or configurability that was not requested.
 - No error handling for impossible scenarios.
 - If you write 200 lines and it could be 50, rewrite it.
-
-Ask: "Would a senior engineer say this is overcomplicated?" If yes, simplify. This is a small-scale open source project, not enterprise software.
 
 ## 3. Surgical Changes
 
@@ -73,21 +70,15 @@ This governs *working* code only — dead code is not protected (see Code Style)
 
 ## 4. Goal-Driven Execution
 
-**Define success criteria. Loop until verified.**
+**Name the check, then meet it.**
 
 - "Add validation" → write tests for invalid inputs, then make them pass
 - "Fix the bug" → write a test that reproduces it, then make it pass
 - "Refactor X" → ensure tests pass before and after
 
-For multi-step tasks, state a brief plan:
+For a task with several parts, keep a short checklist and update it as each part finishes. Start the next open part in the same turn. Open items are not a place to stop.
 
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+If the request names no check, use this repo's: the change typechecks, tests cover the behavior, and `deno task ci` passes.
 
 ## 5. Don't abstract until the duplication is real
 
@@ -158,8 +149,9 @@ function makeBuffer(n: number) {
 
 ## Agent operations
 
-- Prefer `deno task ci` before finishing a change (format, lint, types, docs, tests).
-- Use `deno check` / `deno task check` while iterating; use `deno task ci` before claiming done.
+- With the first tool call, one line on what you are doing. That line shares the message with the call.
+- When the work is finished, and only then, recap what changed, how you checked it, and anything still open.
+- Use `deno check` / `deno task check` while iterating. Run `deno task ci` (format, lint, types, docs, tests) before claiming done.
 - Request only the Deno permissions the code needs; don't widen `--allow-*` casually.
 - Add packages to `deno.json` `imports` deliberately; prefer `@std` and existing deps first.
 
@@ -174,3 +166,9 @@ function makeBuffer(n: number) {
 - [ ] No allocation inside a genuine hot loop — cold paths exempt.
 - [ ] Filenames are `snake_case`. Source is in `src/`; barrels are `mod.ts`. Tests are `*.test.ts` in `tests/`.
 - [ ] `deno task ci` passes.
+
+## Ending a turn
+
+A standing instruction from the user, the person you are working for. It is about how your turns end. A message with no tool call in it ends your turn, and the work stops there until you are asked to continue. The user has seen you end turns in four ways while work they asked for was still owed, and does not want any of them. One: a long summary of what was done that closes by announcing the next step and has no tool call, so the next thing never starts. Two: an offer to carry on with something unless the user would prefer otherwise, which stops to wait for an answer the user was not going to give. Three: a list of decisions for the user when, by your own account, none of them blocks the rest of the work. Four: deciding that this is a good place to report, because the turn has been long or a milestone is done. Status notes are welcome, and so are your recommendations on open decisions, but put them in the same message as your next tool call and carry on with whatever does not depend on the user's answer. If you notice yourself inviting the user to redirect you or offering to wait, delete it and do the next thing. The stops the user does want are the ones where nothing can move without them, or where the thing blocking you is deliberately protected from you. This does not override the need for confirmation on risky or destructive actions.
+
+Format, lint, typecheck, docs, and tests are part of the work still owed. Fix what they report and re-run them before you stop. Do not end the turn to announce that you are about to run them.
