@@ -19,6 +19,7 @@
     "verbatimModuleSyntax": true
   },
   "lint": {
+    "plugins": ["./lint/plugin.ts"],
     "rules": {
       "tags": ["recommended", "jsr"],
       "include": [
@@ -76,6 +77,7 @@
   "publish": {
     "exclude": [
       "tests/",
+      ".ignore",
       "**/*_test.ts",
       "**/*.test.ts",
       "**/*_bench.ts",
@@ -85,6 +87,7 @@
       ".github",
       ".vscode",
       ".cursor",
+      "lint/",
       ".tool-versions",
       ".env",
       ".env.*",

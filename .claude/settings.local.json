@@ -1,0 +1,72 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status *)",
+      "Bash(git log *)",
+      "Bash(git diff *)",
+      "Bash(git show *)",
+      "Bash(git ls-files *)",
+      "Bash(git ls-tree *)",
+      "Bash(git check-ignore *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git switch *)",
+      "Bash(git merge *)",
+      "Bash(npm ci)",
+      "Bash(rg *)",
+      "Bash(shasum *)",
+      "Bash(lsof *)",
+      "Bash(ps *)",
+      "Bash(tee runs/*)",
+      "Bash(tee -a runs/*)",
+      "WebSearch"
+    ],
+    "deny": [
+      "mcp__visualize",
+      "mcp__scheduled-tasks",
+      "SearchPlugins",
+      "SuggestPluginInstall",
+      "SuggestSkills",
+      "ScheduleWakeup"
+    ]
+  },
+  "env": {
+    "CLAUDE_CODE_DISABLE_ARTIFACT": "1"
+  },
+  "skillOverrides": {
+    "anthropic-skills:docx": "off",
+    "anthropic-skills:pptx": "off",
+    "anthropic-skills:xlsx": "off",
+    "anthropic-skills:pdf": "off",
+    "anthropic-skills:docs": "off",
+    "anthropic-skills:computer-use": "off",
+    "anthropic-skills:chrome-browser": "off",
+    "anthropic-skills:built-in-browser": "off",
+    "anthropic-skills:artifact-emulator": "off",
+    "anthropic-skills:setup-claude": "off",
+    "cowork-plugin-management:cowork-plugin-customizer": "off",
+    "cowork-plugin-management:create-cowork-plugin": "off",
+    "plugin-authoring": "off",
+    "dataviz": "off",
+    "artifact-design": "off",
+    "artifact-diagramming": "off",
+    "artifact-capabilities": "off"
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash /Users/peter/.claude/hooks/filter-test-output.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "disableClaudeAiConnectors": true,
+  "disableWorkflows": true,
+  "disableRemoteControl": true,
+  "disableBundledSkills": true
+}

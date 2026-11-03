@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "hooks": {
+    "sessionStart": [
+      {
+        "command": ".cursor/hooks/hook.sh session-start"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/hook.sh format"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/hook.sh stop",
+        "loop_limit": 3,
+        "timeout": 120
+      }
+    ]
+  }
+}
